@@ -15,6 +15,7 @@ function App() {
   useEffect(() => {
     const fetchData = async () => {
       const data = await getCountries();
+      console.log(data);
       setCountries(data);
       const majorContinent = [...new Set(data.map((con) => con.continent))];
       setContinents(majorContinent);
@@ -26,9 +27,19 @@ function App() {
   function searchCountries() {
     return countries.filter((country) => {
       return (
-        country.name.includes(query) && (country.continent === continent || continent === 'all')
+        country.name.toLowerCase().includes(query.toLowerCase()) &&
+        (country.continent === continent || continent === 'all')
       );
     });
+  }
+
+  function setDirection(e) {
+    if (e === 'alphabetical') {
+      console.log(countries);
+      countries.name.sort();
+    } else {
+      countries.name.sort().reverse();
+    }
   }
 
   return (
@@ -46,13 +57,27 @@ function App() {
         />
         <h3>Continent</h3>
         <select value={continent} onChange={(e) => setContinent(e.target.value)}>
-          <option value=""></option>
+          <option value="all">All</option>
+          <option value="">N/A</option>
+          <option value="Africa">Africa</option>
+          <option value="Antarctica">Antarctica</option>
+          <option value="Asia">Asia</option>
+          <option value="Europe">Europe</option>
+          <option value="North America">North America</option>
+          <option value="South America">South America</option>
+          <option value="Oceania">Oceania</option>
+        </select>
+        <h3>Sort</h3>
+        <select value="" onChange={(e) => setDirection(e.target.value)}>
+          <option value=""> </option>
+          <option value="alphabetical">Alphabetical</option>
+          <option value="reverseAlphabetical">Reverse Alphabetical</option>
         </select>
       </div>
       <div>
-        {countries.map((country) => {
-          return <CountryTile key={country.iso2} {...country} />;
-        })}
+        {searchCountries().map((c) => (
+          <CountryTile key={c.iso2} {...c} />
+        ))}
       </div>
       <Footer />
     </div>
