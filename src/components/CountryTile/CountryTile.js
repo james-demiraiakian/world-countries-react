@@ -1,4 +1,5 @@
 import React from 'react';
+import './CountryTile.css';
 
 export default function CountryTile({ iso2, name, continent }) {
   return (

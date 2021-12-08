@@ -9,38 +9,60 @@ function App() {
   const [countries, setCountries] = useState([]);
   const [query, setQuery] = useState('');
   const [continent, setContinent] = useState('all');
-  const [continents, setContinents] = useState('all');
   const [wait, setWait] = useState(true);
+  const [direction, setDirection] = useState('');
 
   useEffect(() => {
     const fetchData = async () => {
       const data = await getCountries();
-      console.log(data);
-      setCountries(data);
-      const majorContinent = [...new Set(data.map((con) => con.continent))];
-      setContinents(majorContinent);
-      setTimeout(() => setWait(false), 2000);
+      const updateData = data.map((item) => {
+        if (!item.continent) {
+          return {
+            ...item,
+            continent: 'N/A',
+          };
+        } else {
+          return item;
+        }
+      });
+      setCountries(updateData);
+      console.log(updateData);
+      setWait(false);
     };
+
     fetchData();
   }, []);
 
   function searchCountries() {
-    return countries.filter((country) => {
-      return (
-        country.name.toLowerCase().includes(query.toLowerCase()) &&
-        (country.continent === continent || continent === 'all')
-      );
-    });
+    return countries
+      .sort((a, b) => {
+        if (direction === 'alphabetical') {
+          if (a.name < b.name) {
+            return -1;
+          }
+          if (a.name > b.name) {
+            return 1;
+          }
+          return 0;
+        } else if (direction === 'reverseAlphabetical') {
+          if (a.name > b.name) {
+            return -1;
+          }
+          if (a.name < b.name) {
+            return 1;
+          }
+          return 0;
+        }
+      })
+      .filter((country) => {
+        return (
+          country.name.toLowerCase().includes(query.toLowerCase()) &&
+          (country.continent === continent || continent === 'all')
+        );
+      });
   }
 
-  function setDirection(e) {
-    if (e === 'alphabetical') {
-      console.log(countries);
-      countries.name.sort();
-    } else {
-      countries.name.sort().reverse();
-    }
-  }
+  if (wait) return <h1>LOADING</h1>;
 
   return (
     <div className="Main">
@@ -58,7 +80,7 @@ function App() {
         <h3>Continent</h3>
         <select value={continent} onChange={(e) => setContinent(e.target.value)}>
           <option value="all">All</option>
-          <option value="">N/A</option>
+          <option value="N/A">N/A</option>
           <option value="Africa">Africa</option>
           <option value="Antarctica">Antarctica</option>
           <option value="Asia">Asia</option>
@@ -68,13 +90,13 @@ function App() {
           <option value="Oceania">Oceania</option>
         </select>
         <h3>Sort</h3>
-        <select value="" onChange={(e) => setDirection(e.target.value)}>
+        <select value={direction} onChange={(e) => setDirection(e.target.value)}>
           <option value=""> </option>
           <option value="alphabetical">Alphabetical</option>
           <option value="reverseAlphabetical">Reverse Alphabetical</option>
         </select>
       </div>
-      <div>
+      <div className="country-box">
         {searchCountries().map((c) => (
           <CountryTile key={c.iso2} {...c} />
         ))}
