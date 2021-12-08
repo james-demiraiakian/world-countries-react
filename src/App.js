@@ -26,7 +26,6 @@ function App() {
         }
       });
       setCountries(updateData);
-      console.log(updateData);
       setWait(false);
     };
 
